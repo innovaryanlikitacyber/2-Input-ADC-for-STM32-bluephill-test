@@ -180,9 +180,13 @@ int main(void)
   {
     /* USER CODE BEGIN 3 */
 
-    // 1. Baca raw ADC
+    // 1. Baca raw ADC + deadzone clamp
     uint16_t raw0 = adc_buf[0];
     uint16_t raw1 = adc_buf[1];
+    if (raw0 >= 4090) raw0 = 4095;
+    if (raw1 >= 4090) raw1 = 4095;
+    if (raw0 <= 15)   raw0 = 0;
+    if (raw1 <= 15)   raw1 = 0;
 
     // 2. Mapping ADC (0-4095) ke satuan fisik
     float suhu_raw = (float)raw0 * 50.0f / 4095.0f;
@@ -212,11 +216,13 @@ int main(void)
       pwm_lama = pwm_out;
     }
 
-    // 6. Kirim ke Serial Monitor
-    int s_int = (int)ema_suhu;
-    int s_dec = (int)((ema_suhu - s_int) * 10.0f);
-    int k_int = (int)ema_kel;
-    int k_dec = (int)((ema_kel - k_int) * 10.0f);
+    // 6. Kirim ke Serial Monitor (dengan pembulatan benar)
+    int s_x10 = (int)(ema_suhu * 10.0f + 0.5f);  // round ke 1 desimal
+    int s_int = s_x10 / 10;
+    int s_dec = s_x10 % 10;
+    int k_x10 = (int)(ema_kel * 10.0f + 0.5f);
+    int k_int = k_x10 / 10;
+    int k_dec = k_x10 % 10;
 
     printf("Suhu:%d.%dC | Kel:%d.%d%% | PWM:%d | RAW[%u,%u]\r\n",
        s_int, s_dec, k_int, k_dec, (int)pwm_out,
