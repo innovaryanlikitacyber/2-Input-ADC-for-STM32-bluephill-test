@@ -228,7 +228,7 @@ int main(void)
        s_int, s_dec, k_int, k_dec, (int)pwm_out,
        raw0, raw1);
 
-    HAL_Delay(50);  // lebih cepat: 50ms (20 Hz)
+    HAL_Delay(20);  // lebih cepat: 20ms (50 Hz)
     /* USER CODE END 3 */
   }
 }
